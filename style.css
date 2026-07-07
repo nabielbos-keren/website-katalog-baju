@@ -11,11 +11,44 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: grayscale(100%);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .product-item:hover .product-img {
     transform: scale(1.03);
+    filter: grayscale(0%);
+}
+
+/* Catalog image frame — thin inset border */
+.product-item .relative::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(255,255,255,0.35);
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* Detail page image frame */
+#detailProductImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.detail-img-wrap {
+    position: relative;
+}
+
+.detail-img-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgba(255,255,255,0.3);
+    pointer-events: none;
+    z-index: 5;
 }
 
 /* --- HARDWARE-ACCELERATED TRANSITION ENGINE --- */

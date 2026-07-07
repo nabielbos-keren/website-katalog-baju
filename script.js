@@ -118,23 +118,26 @@ document.addEventListener('DOMContentLoaded', () => {
             detailProductPrice.textContent = activeProduct.price;
             detailProductDescription.textContent = activeProduct.description;
 
-            // Render stock chart if data exists
+            // Render stock availability if data exists
             if (activeProduct.stock) {
                 const entries = Object.entries(activeProduct.stock);
-                const maxQty = Math.max(...entries.map(([, qty]) => qty));
-                stockBars.innerHTML = entries.map(([size, qty]) => {
-                    const heightPct = maxQty > 0 ? Math.round((qty / maxQty) * 100) : 0;
-                    const isEmpty = qty === 0;
-                    return `
-                        <div class="flex flex-col items-center gap-1 flex-1">
-                            <span class="text-[10px] font-semibold text-zinc-500">${qty}</span>
-                            <div class="w-full flex items-end" style="height:56px">
-                                <div class="w-full rounded-none transition-all duration-500 ${isEmpty ? 'bg-zinc-200' : 'bg-zinc-900'}"
-                                     style="height:${Math.max(heightPct, 8)}%"></div>
-                            </div>
-                            <span class="text-[10px] font-bold tracking-widest uppercase text-zinc-400">${size}</span>
-                        </div>`;
-                }).join('');
+                if (entries.length === 1 && entries[0][0] === 'total') {
+                    // Accessories: show single total stock line
+                    const qty = entries[0][1];
+                    stockBars.innerHTML = `
+                        <span class="text-xs font-semibold text-zinc-900 tracking-wide">${qty} units</span>
+                        <span class="text-xs text-zinc-400">in stock</span>`;
+                } else {
+                    // Sized items: show per-size text grid
+                    stockBars.innerHTML = entries.map(([size, qty]) => {
+                        const color = qty === 0 ? 'text-zinc-300' : qty <= 2 ? 'text-amber-700' : 'text-zinc-900';
+                        return `
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="text-[10px] font-bold tracking-widest uppercase text-zinc-400">${size}</span>
+                                <span class="text-sm font-semibold ${color}">${qty}</span>
+                            </div>`;
+                    }).join('');
+                }
                 detailStockChart.classList.remove('hidden');
             } else {
                 detailStockChart.classList.add('hidden');
