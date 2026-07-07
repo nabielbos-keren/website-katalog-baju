@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailProductCategory = document.getElementById('detailProductCategory');
     const detailProductTitle = document.getElementById('detailProductTitle');
     const detailProductPrice = document.getElementById('detailProductPrice');
+    const detailProductDescription = document.getElementById('detailProductDescription');
     
     // Config Input Controls
     const sizeButtons = document.querySelectorAll('#detailSizeSelector .size-btn');
@@ -103,13 +104,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 category: item.getAttribute('data-category'),
                 price: item.getAttribute('data-price'),
                 numericPrice: parseInt(item.getAttribute('data-numeric-price')),
-                img: item.getAttribute('data-img')
+                img: item.getAttribute('data-img'),
+                description: item.getAttribute('data-description') || ''
             };
 
             detailProductImg.src = activeProduct.img;
             detailProductCategory.textContent = activeProduct.category;
             detailProductTitle.textContent = activeProduct.name;
             detailProductPrice.textContent = activeProduct.price;
+            detailProductDescription.textContent = activeProduct.description;
 
             currentQty = 1;
             qtyValue.textContent = currentQty;
