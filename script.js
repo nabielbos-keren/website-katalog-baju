@@ -73,7 +73,11 @@ document.addEventListener('DOMContentLoaded', () => {
     filterButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             currentCategory = e.currentTarget.getAttribute('data-target');
-            filterButtons.forEach(btn => btn.classList.remove('active-btn', 'bg-zinc-950', 'text-white'));
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active-btn');
+                btn.classList.add('inactive-btn');
+            });
+            e.currentTarget.classList.remove('inactive-btn');
             e.currentTarget.classList.add('active-btn');
             filterProducts();
         });
@@ -220,10 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let message = `Halo Admin, saya ingin memesan daftar belanjaan berikut:\n\n`;
         
         globalCart.forEach((item, index) => {
+            const subtotal = item.numericPrice * item.qty;
             message += `${index + 1}. ${item.name.toUpperCase()}\n` +
                        `   • Size : ${item.size}\n` +
                        `   • Qty  : ${item.qty} pcs\n` +
-                       `   • Sub  : ${item.price}\n\n`;
+                       `   • Sub  : Rp ${subtotal.toLocaleString('id-ID')}\n\n`;
         });
 
         const totalCost = globalCart.reduce((acc, current) => acc + (current.numericPrice * current.qty), 0);
@@ -234,12 +239,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const encodedMessage = encodeURIComponent(message);
         const waUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
         
-        // Kosongkan keranjang setelah menekan checkout biar data transaksi bersih kembali
-        globalCart = [];
-        localStorage.removeItem('archive_cart');
-        updateCartUI();
-        document.body.classList.remove('cart-open');
-        
-        window.open(waUrl, '_blank');
+        const opened = window.open(waUrl, '_blank');
+
+        // Kosongkan keranjang hanya jika WhatsApp berhasil dibuka
+        if (opened) {
+            globalCart = [];
+            localStorage.removeItem('archive_cart');
+            updateCartUI();
+            document.body.classList.remove('cart-open');
+        }
     });
 });
