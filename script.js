@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DETAILS PAGE INTERACTION INTERFACE ---
     productItems.forEach(item => {
         item.addEventListener('click', () => {
-            const stockRaw = item.getAttribute('data-stock');
+            const sizesRaw = item.getAttribute('data-sizes');
             activeProduct = {
                 id: item.getAttribute('data-id'),
                 name: item.getAttribute('data-name'),
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 numericPrice: parseInt(item.getAttribute('data-numeric-price')),
                 img: item.getAttribute('data-img'),
                 description: item.getAttribute('data-description') || '',
-                stock: stockRaw ? JSON.parse(stockRaw) : null
+                sizes: sizesRaw ? JSON.parse(sizesRaw) : null
             };
 
             detailProductImg.src = activeProduct.img;
@@ -118,26 +118,32 @@ document.addEventListener('DOMContentLoaded', () => {
             detailProductPrice.textContent = activeProduct.price;
             detailProductDescription.textContent = activeProduct.description;
 
-            // Render stock availability if data exists
-            if (activeProduct.stock) {
-                const entries = Object.entries(activeProduct.stock);
-                if (entries.length === 1 && entries[0][0] === 'total') {
-                    // Accessories: show single total stock line
-                    const qty = entries[0][1];
-                    stockBars.innerHTML = `
-                        <span class="text-xs font-semibold text-zinc-900 tracking-wide">${qty} units</span>
-                        <span class="text-xs text-zinc-400">in stock</span>`;
-                } else {
-                    // Sized items: show per-size text grid
-                    stockBars.innerHTML = entries.map(([size, qty]) => {
-                        const color = qty === 0 ? 'text-zinc-300' : qty <= 2 ? 'text-amber-700' : 'text-zinc-900';
-                        return `
-                            <div class="flex items-baseline gap-1.5">
-                                <span class="text-[10px] font-bold tracking-widest uppercase text-zinc-400">${size}</span>
-                                <span class="text-sm font-semibold ${color}">${qty}</span>
-                            </div>`;
-                    }).join('');
-                }
+            // Render size guide if data exists
+            if (activeProduct.sizes) {
+                const entries = Object.entries(activeProduct.sizes);
+                const measurements = Object.keys(entries[0][1]); // e.g. ['chest','length'] or ['wrist']
+
+                // Header row
+                const headerCols = ['SIZE', ...measurements.map(m => m.toUpperCase())].map(h =>
+                    `<th class="text-[9px] font-bold tracking-widest text-zinc-400 text-left pb-2 pr-6">${h}</th>`
+                ).join('');
+
+                // Data rows
+                const dataRows = entries.map(([size, vals]) => {
+                    const cells = [
+                        `<td class="text-[10px] font-bold tracking-widest uppercase text-zinc-900 py-2 pr-6">${size}</td>`,
+                        ...measurements.map(m =>
+                            `<td class="text-xs text-zinc-500 py-2 pr-6">${vals[m]} cm</td>`
+                        )
+                    ].join('');
+                    return `<tr class="border-t border-zinc-100">${cells}</tr>`;
+                }).join('');
+
+                stockBars.innerHTML = `
+                    <table class="w-full border-collapse">
+                        <thead><tr>${headerCols}</tr></thead>
+                        <tbody>${dataRows}</tbody>
+                    </table>`;
                 detailStockChart.classList.remove('hidden');
             } else {
                 detailStockChart.classList.add('hidden');
